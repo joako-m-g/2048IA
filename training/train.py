@@ -1,5 +1,5 @@
 import sys
-sys.path.append("C:/Users/pc/Desktop/TPIA") # Agregamos directorio raiz del proyecto
+sys.path.append("C:/Users/pc/Desktop/2048IA") # Agregamos directorio raiz del proyecto
 import numpy as np
 import csv
 import torch

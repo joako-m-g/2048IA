@@ -1,6 +1,6 @@
 # Documentacion
 ---
-## Directorio: `TPIA\game`
+## Directorio: `2048IA\game`
 
 ### Clase `Game()`
 #### Descripcion:
@@ -206,7 +206,7 @@ Esta clase maneja la interfaz gráfica del juego utilizando la librería `tkinte
         game_gui.configurar_ventana()  # Configura las propiedades de la ventana
         ```
 ---
-## Directorio: `TPIA\model`
+## Directorio: `2048IA\model`
 ### Clase `QNetwork`
 #### Descripción:
 Esta clase define una red neuronal para el aprendizaje de políticas en el contexto de un agente de refuerzo. La red se usa tanto para la política (policy) como para la red objetivo (target), ambas con la misma estructura. La red predice los valores Q (calificación de acción) para cada acción, dados los estados del entorno. Estos valores Q son usados por el agente para decidir qué acciones tomar en cada estado.
