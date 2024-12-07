@@ -13,9 +13,11 @@ class QNetwork(nn.Module):
         super(QNetwork, self).__init__()
 
         # Capa de entrada que toma el tamaño del estado (cant de estados)
-        self.fc1 = nn.Linear(stateSize, 256) # Primera capa fullyConnected
-        self.fc2 = nn.Linear(256, 256) # Segunda capa fullyConnected
-        self.fc3 = nn.Linear(256, actionSize) # Capa de salida (tamaño igual al numero de acciones)
+        self.fc1 = nn.Linear(stateSize, 1024) # Primera capa fullyConnected
+        self.fc2 = nn.Linear(1024, 1024) # Segunda capa fullyConnected
+        self.fc3 = nn.Linear(1024, 1024) # Tercera capa fullyConnected
+        self.fc4 = nn.Linear(1024, 1024) # Cuarta capa fullyConnected
+        self.fc5 = nn.Linear(1024, actionSize) # Capa de salida (tamaño igual al numero de acciones)
 
     def forward(self, state): 
         """
@@ -24,7 +26,9 @@ class QNetwork(nn.Module):
         """
         x = F.relu(self.fc1(state)) # Activacion ReLu en la primera capa
         x = F.relu(self.fc2(x)) # Activacion ReLu en la segunda capa
-        qValues = self.fc3(x) # Los valores Q para cada accion
+        x = F.relu(self.fc3(x)) # Activacion ReLu en la segunda capa
+        x = F.relu(self.fc4(x)) # Activacion ReLu en la segunda capa
+        qValues = self.fc5(x) # Los valores Q para cada accion
 
         return qValues
     

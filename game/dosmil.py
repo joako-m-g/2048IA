@@ -148,33 +148,27 @@ class Game:
 
     
     # Calculo de recompensa
-    def reward(self, tablero, lastTablero, movimiento):
+    def reward(self, tablero, lastTablero):
         reward = 0
-        rotaciones={"izquierda": 0,"abajo":3 ,"derecha":2, "arriba":1}
-    
-        for i in range(rotaciones[movimiento]):
-            tablero=np.rot90(tablero,1)
 
         # Premio por colapsar fichas, cuanto mas grande el resultado, mayor el premio
-        for j in range(tablero.shape[1]):
-            for i in range(tablero.shape[0]-1):
+        for i in range(tablero.shape[0]):
+            for j in range(tablero.shape[1]):
                 if tablero[i, j] > lastTablero[i, j]:
-                    reward += math.log2(tablero[j, i])*2 if tablero[j, i] != 0 else 0
-        
-        # Penalizacion por estancamiento
-        reward -= 1 if np.array_equal(lastTablero, tablero) else 0
-
+                    reward += math.log2(tablero[i, j]) if tablero[i, j] != 0 else 0
+          
         # Premio por dejar el tablero lo mas vacio posible
-        posVaciasLast = np.sum(lastTablero == 0)
-        posVaciasActual = np.sum(tablero == 0)
+        if  np.sum(lastTablero == 0) < np.sum(tablero == 0):
+            reward += np.mean(np.where(tablero > 0, np.log2(tablero), 0))
 
-        if posVaciasLast < posVaciasActual:
-            reward += np.mean(tablero)
+        # Penalizacion por estancamiento
+        reward -= np.mean(np.where(tablero > 0, np.log2(tablero), 0)) if not self.esta_atascado(tablero) and np.array_equal(lastTablero, tablero) else 0
 
         # Penalizacion por mover muchas fichas
         for j in range(tablero.shape[1]):
             for i in range(tablero.shape[0]):
-                reward -= 0.5 if tablero[j, i] != lastTablero[j, i] else 0
+                if lastTablero[i, j] != 0:
+                    reward -= math.log2(lastTablero[i, j]) if tablero[i, j] != lastTablero[i, j] else 0
     
         return reward
 

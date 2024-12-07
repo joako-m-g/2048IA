@@ -17,8 +17,8 @@ class DQNTrainer:
     Clase para entrenar un agente usando Deep Q-Learning (DQN).
     """
 
-    def __init__(self, stateSize, actionSize, gamma=0.97, epsilon=0.1, epsilonDecay=0.9999,
-                 learningRate=1e-3, batchSize=64, replayBufferSize=500000, updateTargetFreq=500):
+    def __init__(self, stateSize, actionSize, gamma=0.97, epsilon=0.05, epsilonDecay=0.9999,
+                 learningRate=1e-3, batchSize=1024, replayBufferSize=500000, updateTargetFreq=500):
         """
         Inicializa los hiperparámetros, las redes, el agente y el entorno.
         """
@@ -48,66 +48,52 @@ class DQNTrainer:
         self.actions = ['izquierda', 'derecha', 'arriba', 'abajo']
         self.numericAction = {'izquierda': 0, 'derecha': 1, 'arriba': 2, 'abajo': 3}
 
-    def play(self):
-        """
-        Realiza un episodio de prueba para evaluar la política del agente.
-        """
-        reward = 0
-        tablero = self.env.crear_tablero(4)  # Creamos el tablero
-
-        while not self.env.esta_atascado(tablero):
-            tablero = self.env.llenar_pos_vacias(tablero, 1)
-            ogTablero = tablero.copy()
-            action = self.actions[self.agent.maximiza(ogTablero)]  # Selecciona la acción usando la política
-            tablero = self.env.mover(tablero, action)
-            reward = self.env.reward(tablero, ogTablero, action)
-            #print(tablero)
-    
-            # Si el tablero no cambió, terminamos el juego
-            if np.array_equal(ogTablero, tablero):
-                #print("La acción seleccionada no cambió el estado.")
-                print(tablero)
-                return np.sum(tablero)
-        print(tablero)
-
-        return reward
-
-    def train(self, numEpisodios=60000):
+    def train(self, numEpisodios=70000):
         """
         Entrena al agente en un número dado de episodios.
         """
+    
         # Definimos 50000 episodios de recolección de datos
         for episodio in range(numEpisodios):
+            metrics = {} # Creo diccionario para las metricas
+            metrics['episodio'] = episodio
             tablero = None
             reward = 0
-
-            """
-            number = np.random.randint(1, 5)
-            if number == 1:
-                tablero = self.env.tableroAlineadoHorizontal(4)
-            elif number == 2:
-                tablero = self.env.tableroAleatorio(4)
-            elif number == 3:
-                tablero = self.env.crear_tablero(4)  # Tableros vacíos
-            elif number == 4:
-                tablero = self.env.tableroAlineadoVertical(4)
-            """
+            movs = 0
+            cumReward = 0
             tablero = self.env.crear_tablero(4)
+            movsCount = {'izquierda': 0, 'derecha': 0, 'arriba': 0, 'abajo': 0}
             
             # Recolección de datos (experiencia)
             while not self.env.esta_atascado(tablero):
+                movs += 1
                 tablero = self.env.llenar_pos_vacias(tablero, 1)
                 state = tablero.copy()
                 action = self.actions[self.agent.selectAction(state)]  # Selección de acción
+                movsCount[action] += 1 # Contamos la accion
                 tablero = self.env.mover(tablero, action)
                 nextState = tablero.copy()
-                reward = self.env.reward(tablero, state, action)
+                reward = self.env.reward(tablero, state)
+                cumReward += reward # Calculamos recompensa acumulada
                 done = not self.env.esta_atascado(tablero)  # Verifica si el episodio terminó
                 self.agent.storeTransition(state, self.numericAction[action], reward, nextState, done)  # Guardamos la experiencia
-
             
-            # Entrenamiento de las redes
-            self.agent.train(self.batchSize)
+            metrics['puntajeTotal'] = np.sum(tablero)
+            metrics['puntajeMean'] = np.mean(tablero)
+            metrics['bestFicha'] = np.max(tablero)
+            metrics['movimientos'] = movs
+            metrics['cantMovimientos'] = movsCount
+            metrics['epsilon'] = self.epsilon
+            metrics['cumReward'] = cumReward
+            
+            self.storeMetrics(metrics) #Guardamos metricas en csv
+            
+            print(tablero) # Iprimo el tablero al final de cada partida
+
+            # Entreno 10 veces por juego
+            for i in range(10):    
+                # Entrenamiento de las redes
+                self.agent.train(self.batchSize)
 
             self.agent.updateEpsilon()  # Actualizamos epsilon
 
@@ -116,17 +102,25 @@ class DQNTrainer:
                 #print("Actualizamos red objetivo")
                 self.agent.updatetargetNet()
 
-            # Jugamos y evaluamos la mejora del modelo
-            recompensa = self.play()
-            #print("Recompensa del episodio:", recompensa)
-
-            # Guardamos la recompensa del episodio en un archivo CSV
-            with open('results.csv', mode='a') as file:
-                csv_writer = csv.writer(file)
-                csv_writer.writerow([recompensa, episodio])
-        
         self.saveModel(self.policyNet)
-
+    
+    def storeMetrics(self, metrics):
+        # Verifica si el archivo ya existe
+        archivo_existe = False
+        try:
+            with open('results.csv', "r"):
+                archivo_existe = True
+        except FileNotFoundError:
+            archivo_existe = False
+        
+        # Guardamos metricas del episodio en un CSV
+        with open('results.csv', mode='a') as file:
+            csv_writer = csv.DictWriter(file, fieldnames=metrics.keys())
+            # Si el archivo no existe, escribe el encabezado
+            if not archivo_existe:
+                csv_writer.writeheader()
+            csv_writer.writerow(metrics)
+        
     def saveModel(self, model):
         # Guardamos pesos de la red neuronal
         torch.save(model.state_dict(), 'modeloEntrenado.pth')

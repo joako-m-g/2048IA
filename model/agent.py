@@ -29,15 +29,8 @@ class Agent:
         
         stateTensor = torch.FloatTensor(state).unsqueeze(0).view(-1)
         with torch.no_grad():
-            qValues = self.policyNet(stateTensor) # qvalues: OUTPUT de policyNet
+            qValues = self.policyNet(torch.log2(stateTensor)) # qvalues: OUTPUT de policyNet
         return qValues.argmax().item() # Accion con mayor valor Q
-
-    def maximiza(self, state):
-        stateTensor = torch.FloatTensor(state).unsqueeze(0).view(-1)
-    
-        qValues = self.policyNet(stateTensor) # qvalues: OUTPUT de policyNet
-        accion = qValues.argmax().item() # Accion con mayor valor Q
-        return accion
 
     def storeTransition(self, state, action, reward, nextState, done):
         # Almacenamos la transicion en el Replay Buffer
@@ -49,6 +42,7 @@ class Agent:
             return # No hay suficientes transiciones para entrenar
 
         states, actions, rewards, nextStates, dones = self.replayBuffer.sample(batchSize) # Tomo una muestra de transiciones de tamaño 'batchSize'
+
         # Q valores actuales
         qValues = self.policyNet(torch.log2(states)).gather(1, actions.unsqueeze(1))
         # Q valores objetivo - Se usa no_grad porque esta red se actualiza despues de X pasos

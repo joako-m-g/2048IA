@@ -101,13 +101,23 @@ Metodos:
 
 - `reward`:
     - #### Descripción
-        Recibe un `tablero` como parámetro y retorna la recompensa, que es el valor total de las fichas en el tablero multiplicado por 10.
+        Recibe `tablero` y `lastTablero` como parámetros y retorna la recompensa, por el movimiento.
+        El calculo de la recompensa lo hace en una escala logaritmica para que no haya mucha diferencia entre las fichas grandes y las pequeñas. Si hay esta diferencia, por ejemplo cuando el agente llega a 512, ya no le resulta "interesante" juntar fichas de 16 para llegar a 32. Lo que lo lleva a estancarse ya que las fichas grandes se construyen con movimientos pequeños.
+
+        La recompensa premia:
+            - Cambios en el tablero.
+            - Dejar el tablero mas vacio que antes.
+            - Colapsar fichas, cuanto mas grande las colapsadas mejor la recompensa.
+        
+        La recompensa penaliza: 
+            - El movimiento de muchas fichas, cuantas mas fichas mueve y mas grandes son las fichas, mayor la penalizacion
+            - Dejar el tablero igual que el anterior siendo que el anterior no estaba estancado
     
     - #### Ejemplo de uso
         ```python
         tablero = np.array([[2, 2, 4, 4], [0, 0, 0, 0], [2, 2, 2, 2], [0, 0, 0, 0]])
         print(obj.reward(tablero))
-        # Salida: 80
+        # Salida: **recompensa**
         ```
 ---
 ### Clase `GameGui()`
