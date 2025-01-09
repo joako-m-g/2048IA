@@ -18,7 +18,7 @@ class DQNTrainer:
     """
 
     def __init__(self, stateSize, actionSize, gamma=0.97, epsilon=0.05, epsilonDecay=0.9999,
-                 learningRate=1e-3, batchSize=1024, replayBufferSize=500000, updateTargetFreq=500):
+                 learningRate=1e-3, batchSize=1024, replayBufferSize=100000, updateTargetFreq=500):
         """
         Inicializa los hiperparámetros, las redes, el agente y el entorno.
         """
@@ -76,8 +76,11 @@ class DQNTrainer:
                 reward = self.env.reward(tablero, state)
                 cumReward += reward # Calculamos recompensa acumulada
                 done = not self.env.esta_atascado(tablero)  # Verifica si el episodio terminó
-                self.agent.storeTransition(state, self.numericAction[action], reward, nextState, done)  # Guardamos la experiencia
-            
+                self.agent.storeTransition(state, self.numericAction[action], reward, nextState, done)  # Guardamos la experiencia (transicion)
+
+            print(tablero) # Iprimo el tablero al final de cada partida
+
+            # Calculamos metricas de la partida
             metrics['puntajeTotal'] = np.sum(tablero)
             metrics['puntajeMean'] = np.mean(tablero)
             metrics['bestFicha'] = np.max(tablero)
@@ -87,15 +90,10 @@ class DQNTrainer:
             metrics['cumReward'] = cumReward
             
             self.storeMetrics(metrics) #Guardamos metricas en csv
-            
-            print(tablero) # Iprimo el tablero al final de cada partida
-
-            # Entreno 10 veces por juego
-            for i in range(10):    
-                # Entrenamiento de las redes
-                self.agent.train(self.batchSize)
-
             self.agent.updateEpsilon()  # Actualizamos epsilon
+
+            for _ in range(10):
+                self.agent.train(self.batchSize) # Entrenamiento de las redes
 
             # Actualización de la red objetivo a intervalos definidos
             if episodio % self.updateTargetFreq == 0:

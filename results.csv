@@ -1,0 +1,12 @@
+episodio,puntajeTotal,puntajeMean,bestFicha,movimientos,cantMovimientos,epsilon,cumReward
+0,246.0,15.375,128.0,63,"{'izquierda': 56, 'derecha': 1, 'arriba': 5, 'abajo': 1}",0.05,-10.5
+1,138.0,8.625,32.0,67,"{'izquierda': 62, 'derecha': 1, 'arriba': 4, 'abajo': 0}",0.05,-66.0625
+2,294.0,18.375,128.0,285,"{'izquierda': 76, 'derecha': 7, 'arriba': 196, 'abajo': 6}",0.05,-561.25
+3,218.0,13.625,64.0,56,"{'izquierda': 39, 'derecha': 4, 'arriba': 10, 'abajo': 3}",0.05,-16.0
+4,346.0,21.625,128.0,142,"{'izquierda': 64, 'derecha': 1, 'arriba': 71, 'abajo': 6}",0.05,-196.0625
+5,186.0,11.625,64.0,50,"{'izquierda': 35, 'derecha': 2, 'arriba': 10, 'abajo': 3}",0.05,-17.3125
+6,186.0,11.625,64.0,107,"{'izquierda': 42, 'derecha': 0, 'arriba': 65, 'abajo': 0}",0.05,-140.9375
+7,164.0,10.25,32.0,131,"{'izquierda': 32, 'derecha': 3, 'arriba': 95, 'abajo': 1}",0.05,-229.75
+8,278.0,17.375,128.0,102,"{'izquierda': 47, 'derecha': 5, 'arriba': 44, 'abajo': 6}",0.05,-103.4375
+9,258.0,16.125,64.0,163,"{'izquierda': 47, 'derecha': 4, 'arriba': 109, 'abajo': 3}",0.05,-245.875
+10,224.0,14.0,64.0,164,"{'izquierda': 152, 'derecha': 6, 'arriba': 2, 'abajo': 4}",0.05,-275.625

@@ -5,7 +5,7 @@ import torch.optim as optim
 import math
 
 class Agent: 
-    def __init__(self, stateSize, actionSize, policyNet, targetNet, replayBuffer, lr=1e-3, gamma=0.99, epsilon=1.0, epsilonDecay=0.995, epsilonMin=0.1):
+    def __init__(self, stateSize, actionSize, policyNet, targetNet, replayBuffer, lr=1e-3, gamma=0.99, epsilon=0.05, epsilonDecay=0.999, epsilonMin=0.1):
         self.stateSize = stateSize
         self.actionSize = actionSize
         self.policyNet = policyNet
@@ -41,22 +41,20 @@ class Agent:
         if len(self.replayBuffer) < batchSize:
             return # No hay suficientes transiciones para entrenar
 
-        states, actions, rewards, nextStates, dones = self.replayBuffer.sample(batchSize) # Tomo una muestra de transiciones de tamaño 'batchSize'
+        states, actions, rewards, nextStates, dones = self.replayBuffer.sample(batchSize)  # Tomo una muestra de transiciones de tamaño 'batchSize'
 
         # Q valores actuales
         qValues = self.policyNet(torch.log2(states)).gather(1, actions.unsqueeze(1))
-        # Q valores objetivo - Se usa no_grad porque esta red se actualiza despues de X pasos
+        # Q valores objetivo - Se usa no_grad porque esta red se actualiza después de X pasos
         with torch.no_grad():
             nextQValues = self.targetNet(torch.log2(nextStates)).max(1, keepdim=True)[0]
-            targetQValues = rewards.unsqueeze(1) + self.gamma * nextQValues 
-            # * (1 - dones.unsqueeze(1))
+            targetQValues = rewards.unsqueeze(1) + self.gamma * nextQValues * (1 - dones.unsqueeze(1))
 
-        loss = self.criterion(qValues, targetQValues)
-
-        # Optimizacion
+        loss = self.criterion(qValues, targetQValues)  # Calculamos la pérdida
+        # Optimización
         self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+        loss.backward()  # Realizamos la retropropagación
+        self.optimizer.step()  # Actualizamos los pesos
 
     def updateEpsilon(self): 
         # Reducimos el epsiolon
