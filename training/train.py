@@ -7,10 +7,6 @@ from game.dosmil import Game
 from model.agent import Agent
 from model.networks import QNetwork
 from model.replayBuffer import ReplayBuffer
-import math
-
-
-
 
 class DQNTrainer:
     """
