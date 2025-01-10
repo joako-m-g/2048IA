@@ -168,8 +168,7 @@ class Game:
         for j in range(tablero.shape[1]):
             for i in range(tablero.shape[0]):
                 if lastTablero[i, j] != 0:
-                    reward -= math.log2(lastTablero[i, j]) if tablero[i, j] != lastTablero[i, j] else 0
-    
+                    reward -= math.log2(lastTablero[i, j]) if tablero[i, j] != lastTablero[i, j] and tablero[i, j] < lastTablero[i, j] else 0
         return reward
 
 
