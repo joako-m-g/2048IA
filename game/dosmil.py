@@ -159,14 +159,12 @@ class Game:
 
         # Penalización por estancamiento
         if np.array_equal(tablero, lastTablero):
-            # Filtrar valores mayores que 0
-            non_zero_values = tablero[tablero > 0]
-
-            # Verificar si hay valores válidos
-            if non_zero_values.size > 0:
-                reward -= np.mean(np.log2(non_zero_values))
+            # Aumenta la penalización por estancamiento consecutivo
+            if self.esta_atascado(tablero):
+                self.estancamiento_count += 1  # Lleva un conteo de turnos estancados consecutivos
+                reward -= self.estancamiento_count
             else:
-                reward -= 0  # No hay valores válidos, no afecta la recompensa
+                self.estancamiento_count = 0  # Reinicia el conteo si se desbloquea
                 
         # Premio por mantener el tablero vacío
         reward += np.sum(tablero == 0)
