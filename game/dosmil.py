@@ -159,8 +159,15 @@ class Game:
 
         # Penalización por estancamiento
         if np.array_equal(tablero, lastTablero):
-            reward -= np.mean(np.where(tablero > 0, np.log2(tablero), 0))
+            # Filtrar valores mayores que 0
+            non_zero_values = tablero[tablero > 0]
 
+            # Verificar si hay valores válidos
+            if non_zero_values.size > 0:
+                reward -= np.mean(np.log2(non_zero_values))
+            else:
+                reward -= 0  # No hay valores válidos, no afecta la recompensa
+                
         # Premio por mantener el tablero vacío
         reward += np.sum(tablero == 0)
 
