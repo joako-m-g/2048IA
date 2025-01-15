@@ -151,24 +151,19 @@ class Game:
     def reward(self, tablero, lastTablero):
         reward = 0
 
-        # Premio por colapsar fichas, cuanto mas grande el resultado, mayor el premio
+        # Premio por colapsar fichas (incremento en valores del tablero)
         for i in range(tablero.shape[0]):
             for j in range(tablero.shape[1]):
                 if tablero[i, j] > lastTablero[i, j]:
                     reward += math.log2(tablero[i, j]) if tablero[i, j] != 0 else 0
-          
-        # Premio por dejar el tablero lo mas vacio posible
-        if  np.sum(lastTablero == 0) < np.sum(tablero == 0):
-            reward += np.mean(np.where(tablero > 0, np.log2(tablero), 0))
 
-        # Penalizacion por estancamiento
-        reward -= np.mean(np.where(tablero > 0, np.log2(tablero), 0)) if not self.esta_atascado(tablero) and np.array_equal(lastTablero, tablero) else 0
+        # Penalización por estancamiento
+        if np.array_equal(tablero, lastTablero):
+            reward -= np.mean(np.log2(tablero))
 
-        # Penalizacion por mover muchas fichas
-        for j in range(tablero.shape[1]):
-            for i in range(tablero.shape[0]):
-                if lastTablero[i, j] != 0:
-                    reward -= math.log2(lastTablero[i, j]) if tablero[i, j] != lastTablero[i, j] and tablero[i, j] < lastTablero[i, j] else 0
+        # Premio por mantener el tablero vacío
+        reward += np.sum(tablero == 0)
+
         return reward
 
 
