@@ -50,7 +50,7 @@ class DQNTrainer:
         Entrena al agente en un número dado de episodios.
         """
     
-        # Definimos 50000 episodios de recolección de datos
+        # Definimos numero de episodios
         for episodio in range(numEpisodios):
             # Cargamos los pesos de la ultima sesion de entrenamiento
             if os.path.isfile(os.path.join('C:\\Users\\pc\\Desktop\\2048IA\\', "training", "modeloEntrenado.pth")):
@@ -134,4 +134,4 @@ if __name__ == "__main__":
 
     # Inicializar y entrenar el agente
     trainer = DQNTrainer(stateSize, actionSize)
-    trainer.train(numEpisodios=50000)
+    trainer.train(numEpisodios=7000)
