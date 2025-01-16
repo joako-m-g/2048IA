@@ -7,6 +7,7 @@ from game.dosmil import Game
 from model.agent import Agent
 from model.networks import QNetwork
 from model.replayBuffer import ReplayBuffer
+import os
 
 class DQNTrainer:
     """
@@ -29,7 +30,7 @@ class DQNTrainer:
         self.updateTargetFreq = updateTargetFreq
 
         # Inicialización de las redes y el agente
-        redes = QNetwork(stateSize, actionSize)
+        self.redes = QNetwork(stateSize, actionSize)
         self.policyNet, self.targetNet = redes.createNetwork(stateSize, actionSize)
 
         # Inicializamos Replay Buffer
@@ -44,13 +45,17 @@ class DQNTrainer:
         self.actions = ['izquierda', 'derecha', 'arriba', 'abajo']
         self.numericAction = {'izquierda': 0, 'derecha': 1, 'arriba': 2, 'abajo': 3}
 
-    def train(self, numEpisodios=70000):
+    def train(self, numEpisodios=7000):
         """
         Entrena al agente en un número dado de episodios.
         """
     
         # Definimos 50000 episodios de recolección de datos
         for episodio in range(numEpisodios):
+            # Cargamos los pesos de la ultima sesion de entrenamiento
+            if os.path.isfile(os.path.join('C:\\Users\\pc\\Desktop\\2048IA\\', "training", "modeloEntrenado.pth")):
+                self.redes.loadModels(self.policyNet, self.targetNet, 'modeloEntrenadoPolicy.pth', 'modeloEntrenadoTarget.pth')
+            
             metrics = {} # Creo diccionario para las metricas
             metrics['episodio'] = episodio
             tablero = None
@@ -96,7 +101,7 @@ class DQNTrainer:
                 #print("Actualizamos red objetivo")
                 self.agent.updatetargetNet()
 
-        self.saveModel(self.policyNet)
+        self.saveModel([self.policyNet, self.targetNet])
     
     def storeMetrics(self, metrics):
         # Verifica si el archivo ya existe
@@ -115,9 +120,10 @@ class DQNTrainer:
                 csv_writer.writeheader()
             csv_writer.writerow(metrics)
         
-    def saveModel(self, model):
+    def saveModel(self, models):
         # Guardamos pesos de la red neuronal
-        torch.save(model.state_dict(), 'modeloEntrenado.pth')
+        torch.save(models[0].state_dict(), 'modeloEntrenadoPolicy.pth')
+        torch.save(models[1].state_dict(), 'modeloEntrenadoTarget.pth')
 
 
 # Uso de la clase DQNTrainer

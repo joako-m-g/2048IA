@@ -47,4 +47,7 @@ class QNetwork(nn.Module):
 
         return policyNet, targetNet
 
-    
+    def loadModels(self, policyNet, targeNet, policyPath, targetPath):
+        policyNet.load_state_dict(torch.load(policyPath)) # Cargamos los pesos a la primera red
+        targeNet.load_state_dict(torch.load(targetPath)) # Cargamos los pesos a la segunda red
+        
