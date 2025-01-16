@@ -31,7 +31,7 @@ class DQNTrainer:
 
         # Inicialización de las redes y el agente
         self.redes = QNetwork(stateSize, actionSize)
-        self.policyNet, self.targetNet = redes.createNetwork(stateSize, actionSize)
+        self.policyNet, self.targetNet = self.redes.createNetwork(stateSize, actionSize)
 
         # Inicializamos Replay Buffer
         self.replayBuffer = ReplayBuffer(replayBufferSize)
