@@ -159,6 +159,7 @@ class Game:
 
         # Penalización por estancamiento
         if np.array_equal(tablero, lastTablero):
+            self.estancamiento_count = 0
             # Aumenta la penalización por estancamiento consecutivo
             if not self.esta_atascado(tablero):
                 self.estancamiento_count *= 2 # Lleva un conteo de turnos estancados consecutivos
