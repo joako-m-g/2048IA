@@ -5,7 +5,7 @@ import torch.optim as optim
 import math
 
 class Agent: 
-    def __init__(self, stateSize, actionSize, policyNet, targetNet, replayBuffer, lr=1e-3, gamma=0.99, epsilon=0.05, epsilonDecay=0.999, epsilonMin=0.1):
+    def __init__(self, stateSize, actionSize, policyNet, targetNet, replayBuffer, lr=1e-3, gamma=0.99, epsilon=0.05, epsilonDecay=0.9999, epsilonMin=0.001):
         self.stateSize = stateSize
         self.actionSize = actionSize
         self.policyNet = policyNet
@@ -27,9 +27,9 @@ class Agent:
         if np.random.rand() < self.epsilon:
             return np.random.randint(0, self.actionSize) # Seleccionamos accion aleatoria
         
-        stateTensor = torch.FloatTensor(state).unsqueeze(0).view(-1)
+        stateTensor = torch.FloatTensor(state)
         with torch.no_grad():
-            qValues = self.policyNet(torch.log2(stateTensor)) # qvalues: OUTPUT de policyNet
+            qValues = self.policyNet(stateTensor) # qvalues: OUTPUT de policyNet
         return qValues.argmax().item() # Accion con mayor valor Q
 
     def storeTransition(self, state, action, reward, nextState, done):
@@ -44,10 +44,10 @@ class Agent:
         states, actions, rewards, nextStates, dones = self.replayBuffer.sample(batchSize)  # Tomo una muestra de transiciones de tamaño 'batchSize'
 
         # Q valores actuales
-        qValues = self.policyNet(torch.log2(states)).gather(1, actions.unsqueeze(1))
+        qValues = self.policyNet(torch.FloatTensor(states)).gather(1, actions.unsqueeze(1))
         # Q valores objetivo - Se usa no_grad porque esta red se actualiza después de X pasos
         with torch.no_grad():
-            nextQValues = self.targetNet(torch.log2(nextStates)).max(1, keepdim=True)[0]
+            nextQValues = self.targetNet(torch.FloatTensor(nextStates)).max(1, keepdim=True)[0]
             targetQValues = rewards.unsqueeze(1) + self.gamma * nextQValues * (1 - dones.unsqueeze(1))
 
         loss = self.criterion(qValues, targetQValues)  # Calculamos la pérdida
@@ -64,6 +64,3 @@ class Agent:
     def updatetargetNet(self): 
         # Actualizamos pesos de red objetivo
         self.targetNet.load_state_dict(self.policyNet.state_dict())
-
-
-    

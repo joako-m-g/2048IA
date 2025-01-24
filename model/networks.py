@@ -13,7 +13,7 @@ class QNetwork(nn.Module):
         super(QNetwork, self).__init__()
 
         # Capa de entrada que toma el tamaño del estado (cant de estados)
-        self.fc1 = nn.Linear(stateSize, 1024) # Primera capa fullyConnected
+        self.fc1 = nn.Linear(272, 1024) # Primera capa fullyConnected
         self.fc2 = nn.Linear(1024, 1024) # Segunda capa fullyConnected
         self.fc3 = nn.Linear(1024, 1024) # Tercera capa fullyConnected
         self.fc4 = nn.Linear(1024, 1024) # Cuarta capa fullyConnected
@@ -48,6 +48,6 @@ class QNetwork(nn.Module):
         return policyNet, targetNet
 
     def loadModels(self, policyNet, targeNet, policyPath, targetPath):
-        policyNet.load_state_dict(torch.load(policyPath)) # Cargamos los pesos a la primera red
-        targeNet.load_state_dict(torch.load(targetPath)) # Cargamos los pesos a la segunda red
-        
+        print('Cargando modelo guardado...')
+        policyNet.load_state_dict(torch.load(policyPath, weights_only=True)) # Cargamos los pesos a la primera red
+        targeNet.load_state_dict(torch.load(targetPath, weights_only=True)) # Cargamos los pesos a la segunda red
